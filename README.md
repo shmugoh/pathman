@@ -1,5 +1,8 @@
 # pathman
 
+This project should not be confused with [/therootcompany/pathman](https://github.com/therootcompany/pathman).
+
+#
 `pathman` is a CLI Manager for the Windows PATH environment variable that 
 aims to simplify the process of managing PATH variables in a quick and efficient manner. 
 
