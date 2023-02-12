@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -17,6 +16,7 @@ var (
 
 	pathValue       strings.Builder
 	pathDestination [2]interface{}
+	err             error
 )
 
 func init() {
@@ -49,11 +49,10 @@ var rootCmd = &cobra.Command{
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// Obtains Current Folder if none is parsed
 		if len(folderInput) == 0 {
-			executable, err := os.Executable()
+			folderInput, err = os.Getwd()
 			if err != nil {
 				return fmt.Errorf("error finding executable: %v", err)
 			}
-			folderInput = filepath.Dir(executable)
 		}
 
 		// Sets PATH Location in Registry

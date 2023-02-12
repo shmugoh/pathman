@@ -18,7 +18,7 @@ var removeCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Printf("Remvoving value from variable %s...\n", pathKey)
+		fmt.Printf("Removing value from variable %s...\n", pathKey)
 		pathSlice := strings.Split(path, ";")
 		pathSlice = append(pathSlice, folderInput)
 
