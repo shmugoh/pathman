@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/sys/windows"
@@ -39,18 +39,16 @@ func init() {
 		"sets path key to edit",
 	)
 
-	rootCmd.AddCommand(addCmd)
+	rootCmd.AddCommand(addCmd, removeCmd)
 }
 
 var rootCmd = &cobra.Command{
-	// Use:  "dishook [url] [message]\n  dishook [url] [flags]",
-	// Args: cobra.MinimumNArgs(2),
+	Use:  "pathman",
+	Args: cobra.MaximumNArgs(2),
 
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		// if len(args) == 0 {
-		// 	cmd.Help()
-		// 	// return fmt.Errorf("no arguments given")
-		// }
+
+		// Obtains Current Folder if none is parsed
 		if len(folderInput) == 0 {
 			executable, err := os.Executable()
 			if err != nil {
@@ -59,7 +57,7 @@ var rootCmd = &cobra.Command{
 			folderInput = filepath.Dir(executable)
 		}
 
-		// Sets PATH location in Registry
+		// Sets PATH Location in Registry
 		token := windows.GetCurrentProcessToken()
 		switch isElevated := token.IsElevated(); isElevated {
 		case true:
@@ -72,17 +70,14 @@ var rootCmd = &cobra.Command{
 		token.Close()
 
 		// Sets PATH Key
-		if pathKey == "PATH" {
-			pathKey = "Path" // equivalent of registry
-		}
+		pathKey = strings.ToLower(pathKey)
 
-		// fmt.Println(folderInput, pathKey)
 		return nil
 	},
 
-	// if no command is parsed
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := addFunc()
+		// Runs `addCmd` if no command is given
+		err := addCmd.RunE(cmd, args)
 		if err != nil {
 			fmt.Errorf(err.Error())
 		}
@@ -90,18 +85,33 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func getEnv(pathDest [2]interface{}, pathKey string) string {
-	fmt.Printf("Getting value of %s...\n", pathKey)
+func getEnv(pathDest [2]interface{}, pathKey string) (string, error) {
 	k, err := registry.OpenKey(pathDest[0].(registry.Key), pathDest[1].(string), registry.QUERY_VALUE)
 	if err != nil {
-		log.Fatal(err)
-	}
-	s, _, err := k.GetStringValue(pathKey)
-	if err != nil {
-		log.Fatal((err))
+		fmt.Errorf("error opening the key: %s", err)
 	}
 	defer k.Close()
-	return s
+
+	s, _, err := k.GetStringValue(pathKey)
+	if err == nil {
+		fmt.Printf("Getting value of %s...\n", pathKey)
+		return s, nil
+	}
+
+	// If the key does not exist, set it with an empty string
+	fmt.Printf("Appending %s to environment...\n", pathKey)
+	err = k.SetExpandStringValue(pathKey, "")
+	if err != nil {
+		fmt.Errorf("error setting the value: %s", err)
+	}
+
+	// Retrieve the value again
+	s, _, err = k.GetStringValue(pathKey)
+	if err != nil {
+		fmt.Errorf("error retrieving the value: %s", err)
+	}
+
+	return s, nil
 }
 
 func setEnv(pathDest [2]interface{}, pathKey string, envValue string) error {
@@ -110,11 +120,12 @@ func setEnv(pathDest [2]interface{}, pathKey string, envValue string) error {
 	if err != nil {
 		return err
 	}
+	defer k.Close()
+
 	err = k.SetStringValue(pathKey, envValue)
 	if err != nil {
 		return err
 	}
-	defer k.Close()
 	return nil
 }
 
