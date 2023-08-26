@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"pathman/platform"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -13,7 +14,7 @@ var removeCmd = &cobra.Command{
 	Args:  cobra.MaximumNArgs(2),
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		path, err := getEnv(pathDestination, pathKey)
+		path, err := platform.GET_ENV(pathDestination, pathKey)
 		if err != nil {
 			return err
 		}
