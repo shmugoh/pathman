@@ -11,7 +11,7 @@ import (
 	"golang.org/x/sys/windows/registry"
 )
 
-func SET_PATH(pathDestination [2]interface{}, pathKey string) (string, error) {
+func SET_PATH(pathDestination [2]interface{}, pathKey string) ([2]interface{}, string, error) {
 	// Sets PATH Location in Registry
 	token := windows.GetCurrentProcessToken()
 	switch isElevated := token.IsElevated(); isElevated {
@@ -28,7 +28,7 @@ func SET_PATH(pathDestination [2]interface{}, pathKey string) (string, error) {
 
 	// Sets PATH Key
 	pathKey = strings.ToLower(pathKey)
-	return pathKey, nil
+	return pathDestination, pathKey, nil
 }
 
 func GET_ENV(pathDest [2]interface{}, pathKey string) (string, error) {

@@ -56,7 +56,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		// Sets PATH Location & Key
-		pathKey, err = platform.SET_PATH(pathDestination, pathKey)
+		pathDestination, pathKey, err = platform.SET_PATH(pathDestination, pathKey)
 		if err != nil {
 			return err
 		}

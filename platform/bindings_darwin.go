@@ -10,16 +10,16 @@ func SET_PATH(pathDestination [2]interface{}, pathKey string) (string, error) {
 }
 
 // func getEnv(pathDest [2]interface{}, pathKey string) (string, error) {
-func GET_ENV(pathDest [2]interface{}, pathKey string) (error) {
-	// Open OS PATH Key
-
-	// Obtains Picked PATH Name from Key
-
-	// Creates New PATH if non-existant
-
-	// Obtains Picked PATH Name from Key
-	return nil
-}
+	func GET_ENV(pathDest [2]interface{}, pathKey string) ([2]interface{}, string, error) {
+		// Open OS PATH Key
+	
+		// Obtains Picked PATH Name from Key
+	
+		// Creates New PATH if non-existant
+	
+		// Obtains Picked PATH Name from Key
+		return {{}, {}}, "s", nil
+	}
 
 func SET_ENV(pathDest [2]interface{}, pathKey string, envValue string) error {
 	// Write Changes to PATH
